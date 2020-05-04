@@ -20,12 +20,12 @@ void initGPIOs(){
 	PB_CR2 = (1 << BLK) | (1 << LAT) | (1 << CLK) | (1 << Mo); // That Super fast at 10MHz max speed
 }
 
-//Very Long 287 bit bitbanging 
+//Very Long 286 bit bitbanging 
 
 /* first 234 bit is divided into 39 part, each part contain 6 bit of dot data 
  * [1:1a,1f,1b,1e,1c,1d] [2:2a,2f,2b,2e,2c,2d] ..... [39:39a,39f,39b,39e,39c,39d] ; [Row Number:Column a, f, b, e, c, d]
- * The rest 53 bit (238 to 287) is the grid control bits 
- * [G1:235] [G2:236] ..... [G53:287] ; [Grid number : bit position]
+ * The rest 52 bit (238 to 286) is the grid control bits 
+ * [G1:235] [G2:236] ..... [G52:286] ; [Grid number : bit position]
  */
 
 /* uint8_t Grid is the current Grid number for displaying certain region of the display, The active grid will be in the form N and N+1 by N is between 1 and 53
@@ -41,15 +41,15 @@ void LBB(uint8_t Grid,char *rowdat[]){
 // Bitmap phase : send the 234 bit of bitmap data
 	for (int i=0;i< 29;i++){
 	for (int a=7;a> -1;a--){
-	PB_ODR = ((*rowdata & (1 << a)) << Mo); // The Unused Grid will be turn off
+	PB_ODR = (((uintptr_t)rowdata & (1 << a)) << Mo); // The Unused Grid will be turn off
 	PB_ODR = (1 << CLK); // _/
 	PB_ODR = (0 << CLK); // \_
 	}
-	rowdata++;
+	*rowdata++;
 	}
-	rowdata++;
+	*rowdata++;
 	for (int i=7;i > 5;i--){
-	PB_ODR = ((*rowdata & (1 << i)) << Mo); // The Unused Grid will be turn off
+	PB_ODR = (((uintptr_t)rowdata & (1 << i)) << Mo); // The Unused Grid will be turn off
 	PB_ODR = (1 << CLK); // _/
 	PB_ODR = (0 << CLK); // \_
 	}
