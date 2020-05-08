@@ -17,6 +17,7 @@
 #define Mo  6	// Master out on PB6
 
 //Dummy bytes ; Format (MSB)[a,b,c,d,e,f,0,0](LSB) 
+
 char img1[30]={
 0xAA,0xAA,0xAA,0xAA,0xAA,
 
@@ -64,6 +65,7 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 // Initial phase : Start communication
 	__asm__("bset 0x5005, #3"); // Display blank, Set PB3 to 1
 	__asm__("bset 0x5005, #4"); // Hold Latch for little while, Set PB4 to 1
+	__asm__("nop");
 	__asm__("bres 0x5005, #4"); // release Latch, Set PB4 to 0
 	__asm__("bres 0x5005, #3"); // blank is done, Set PB3 to 0
 
@@ -79,7 +81,9 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	}// if((uintptr_t)rowdata & (1 << reOrder[EvOd][a]))
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
-	}for (int a=0;a< 6;a++)
+	__asm__("nop");
+	__asm__("nop");
+	}// for (int a=0;a< 6;a++)
 
 	*rowdata++; // move to the next data in the array
 	}// for (int i=0;i< 29;i++)
@@ -95,33 +99,45 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	}
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
-
+	__asm__("nop");
+	__asm__("nop");
 	}// for (int i=0;i< 2;i++)
 
 // Grid Activation phase 1a : Check if We use the Grid 52, If yes, Grid 1 must be activated
-	if (Grid == 52){// in case that Grid is reaching the end (Grid 53) the First Grid (1) must be activated 
+	if (Grid == 52){
+
+// in case that Grid is reaching the end (Grid 53) the First Grid (1) must be activated 
 	__asm__("bset 0x5005, #6"); // Grid 1 must be activated 	
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
+	__asm__("nop");
+	__asm__("nop");
 
 // Grid Activation phase 2a : Disable the rest unused Grid
 	for (int i=0;i<50;i++){
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
+	__asm__("nop");
+	__asm__("nop");
+	}// for (int i=0;i<50;i++)
 
 // Grid Activation phase 3a : Enable the last Grid
 	__asm__("bset 0x5005, #6"); // activate Grid 52 	
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
-	}
+	__asm__("nop");
+	__asm__("nop");
 
 	}else{
+
 // Grid Activation phase 1b : Disable unused grid
 	for (int i=1;i<Grid;i++){
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
+	__asm__("nop");
+	__asm__("nop");
 	}
 
 // Grid Activation phase 2b : Only turn the Grid N and N+1 on by send 1 two times
@@ -129,24 +145,26 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	__asm__("bset 0x5005, #6"); // two pair will be activated	
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
+	__asm__("nop");
+	__asm__("nop");
 	}
 
 // Grid Activation phase 3 : Disable the rest unused Grid
-	for (int i=Grid;i<52;i++){
+	for (int i=Grid+1;i<52;i++){
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
 	__asm__("bres 0x5005, #5"); // \_
+	__asm__("nop");
+	__asm__("nop");
 	}
 
 	}// if (Grid == 52)
-
+	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 }
-
-
 void main() {
 	CLK_CKDIVR = 0x00; // Keep the clock at 16MHz with no clock divider
 	initGPIOs(); // Init all pin that we want at Super fast 10MHz
-    while (1) {
+ 	while (1) {
      // Still working on it dude.
 	for (int i=1;i < 53;i++){
 	LBB(i,img1);	
