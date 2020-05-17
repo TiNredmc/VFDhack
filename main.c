@@ -40,7 +40,8 @@ uint8_t reOrder[2][6]={
 void initGPIOs(){
 	PB_DDR |= (1 << BLK) | (1 << LAT) | (1 << CLK) | (1 << Mo); // set all pin as output
 	PB_CR1 |= (1 << BLK) | (1 << LAT) | (1 << CLK) | (1 << Mo); // by using Push-pull mode
-	PB_CR2 |= (1 << BLK) | (1 << LAT) | (1 << CLK) | (1 << Mo); // That Super fast at 10MHz max speed
+	//PB_CR2 |= (1 << BLK) | (1 << LAT) | (1 << CLK) | (1 << Mo); // That Super fast at 10MHz max speed
+	__asm__("bset 0x5005, #5"); // _/ clock need to be high if no data is being sent 
 }
 
 //Very Long 286 bit bitbanging 
@@ -66,6 +67,7 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	__asm__("bset 0x5005, #3"); // Display blank, Set PB3 to 1
 	__asm__("bset 0x5005, #4"); // Hold Latch for little while, Set PB4 to 1
 	__asm__("nop");
+	__asm__("nop");
 	__asm__("bres 0x5005, #4"); // release Latch, Set PB4 to 0
 	__asm__("bres 0x5005, #3"); // blank is done, Set PB3 to 0
 
@@ -73,14 +75,15 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	for (int i=0;i< 29;i++){
 
 	for (int a=0;a< 6;a++){
+	__asm__("bres 0x5005, #5"); // \_
 
 	if((uintptr_t)rowdata & (1 << reOrder[EvOd][a])){ //sending the data
 	__asm__("bset 0x5005, #6");// set PB5 to 1	
 	}else{
 	__asm__("bres 0x5005, #6");// Set PB5 to 0	
 	}// if((uintptr_t)rowdata & (1 << reOrder[EvOd][a]))
+
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}// for (int a=0;a< 6;a++)
@@ -91,14 +94,15 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	*rowdata++;// move to the next data in the array
 
 	for (int i=0;i< 2;i++){
+	__asm__("bres 0x5005, #5"); // \_
 
 	if((uintptr_t)rowdata & (1 << reOrder[EvOd][i])){ // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #6");// set PB5 to 1	
 	}else{
 	__asm__("bres 0x5005, #6");// Set PB5 to 0	
-	}
+	}// if((uintptr_t)rowdata & (1 << reOrder[EvOd][i]))
+
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}// for (int i=0;i< 2;i++)
@@ -107,53 +111,53 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	if (Grid == 52){
 
 // in case that Grid is reaching the end (Grid 53) the First Grid (1) must be activated 
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bset 0x5005, #6"); // Grid 1 must be activated 	
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 
 // Grid Activation phase 2a : Disable the rest unused Grid
 	for (int i=0;i<50;i++){
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}// for (int i=0;i<50;i++)
 
 // Grid Activation phase 3a : Enable the last Grid
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bset 0x5005, #6"); // activate Grid 52 	
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 
-	}else{
+	}else{// if grid is not 52 ; to these stuffs
 
 // Grid Activation phase 1b : Disable unused grid
 	for (int i=1;i<Grid;i++){
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}
 
 // Grid Activation phase 2b : Only turn the Grid N and N+1 on by send 1 two times
 	for (int i=0; i < 2; i++){
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bset 0x5005, #6"); // two pair will be activated	
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}
 
 // Grid Activation phase 3 : Disable the rest unused Grid
 	for (int i=Grid+1;i<52;i++){
+	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bres 0x5005, #6"); // The Unused Grid will be turn off
 	__asm__("bset 0x5005, #5"); // _/
-	__asm__("bres 0x5005, #5"); // \_
 	__asm__("nop");
 	__asm__("nop");
 	}
