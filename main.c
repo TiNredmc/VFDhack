@@ -18,18 +18,17 @@
 
 //Dummy bytes ; Format (MSB)[a,b,c,d,e,f,0,0](LSB) 
 
-char img1[30]={
-0xAA,0xAA,0xAA,0xAA,0xAA,
-
-0xAA,0xAA,0xAA,0xAA,0xAA,
-
-0xAA,0xAA,0xAA,0xAA,0xAA,
-
-0xAA,0xAA,0xAA,0xAA,0xAA,
-
-0xAA,0xAA,0xAA,0xAA,0xAA,
-
-0xAA,0xAA,0xAA,0xAA,0xA8};
+char img1[39]={
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78, 0xD8,
+0x78, 0xD8, 0x78      };
 
 uint8_t reOrder[2][6]={
 {0,2,0,3,0,4}, /* the bit shift to convert def to the afbecd format */
@@ -72,7 +71,7 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	__asm__("bres 0x5005, #3"); // blank is done, Set PB3 to 0
 
 // Bitmap phase : send the 234 bit of bitmap data
-	for (int i=0;i< 29;i++){
+	for (int i=0;i< 39;i++){
 
 	for (int a=0;a< 6;a++){
 	__asm__("bres 0x5005, #5"); // \_
@@ -89,23 +88,8 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 	}// for (int a=0;a< 6;a++)
 
 	*rowdata++; // move to the next data in the array
-	}// for (int i=0;i< 29;i++)
+	}// for (int i=0;i< 39;i++)
 
-	*rowdata++;// move to the next data in the array
-
-	for (int i=0;i< 2;i++){
-	__asm__("bres 0x5005, #5"); // \_
-
-	if((uintptr_t)rowdata & (1 << reOrder[EvOd][i])){ // The Unused Grid will be turn off
-	__asm__("bset 0x5005, #6");// set PB5 to 1	
-	}else{
-	__asm__("bres 0x5005, #6");// Set PB5 to 0	
-	}// if((uintptr_t)rowdata & (1 << reOrder[EvOd][i]))
-
-	__asm__("bset 0x5005, #5"); // _/
-	__asm__("nop");
-	__asm__("nop");
-	}// for (int i=0;i< 2;i++)
 
 // Grid Activation phase 1a : Check if We use the Grid 52, If yes, Grid 1 must be activated
 	if (Grid == 52){
