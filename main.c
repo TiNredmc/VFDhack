@@ -94,7 +94,7 @@ void LBB(uint8_t Grid,char *rowdata[30]){
 // Grid Activation phase 1a : Check if We use the Grid 52, If yes, Grid 1 must be activated
 	if (Grid == 52){
 
-// in case that Grid is reaching the end (Grid 53) the First Grid (1) must be activated 
+// in case that Grid is reaching the end (Grid 52) the First Grid (1) must be activated 
 	__asm__("bres 0x5005, #5"); // \_
 	__asm__("bset 0x5005, #6"); // Grid 1 must be activated 	
 	__asm__("bset 0x5005, #5"); // _/
