@@ -54,7 +54,7 @@ void initGPIOs(){
 /* uint8_t Grid is the current Grid number for displaying certain region of the display, The active grid will be in the form N and N+1 by N is between 1 and 53
  * char *rowdata[] is the array that pointed to the actuall memory parts contain the Display bitmap
  */    
-void LBB(uint8_t Grid,char *rowdata[30]){
+void LBB(uint8_t Grid,char *rowdata[39]){
 // Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algoithm to convert abcdef to afbecd format).
 	uint8_t EvOd = 0;
 	if(Grid%2){
