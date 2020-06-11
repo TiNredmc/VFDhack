@@ -58,9 +58,9 @@ void LBB(uint8_t Grid,char *rowdata[39]){
 // Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algoithm to convert abcdef to afbecd format).
 	uint8_t EvOd = 0;
 	if(Grid%2){
-	EvOd = 1;// event number (event grid), Only manipulate the d, e, f Dots
+	EvOd = 0;// event number (event grid), Only manipulate the d, e, f Dots
 	}else{	
-	EvOd = 0;// odd number (odd grid), Only manipulate the a, b, c Dots
+	EvOd = 1;// odd number (odd grid), Only manipulate the a, b, c Dots
 	}
 // Initial phase : Start communication
 	__asm__("bset 0x5005, #3"); // Display blank, Set PB3 to 1
